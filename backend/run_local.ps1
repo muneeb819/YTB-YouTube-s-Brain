@@ -1,5 +1,7 @@
 $ErrorActionPreference = "Stop"
 
+Set-Location -LiteralPath $PSScriptRoot
+
 if (-not (Test-Path ".venv")) {
     python -m venv .venv
 }

@@ -1,6 +1,6 @@
 services:
   api:
-    build: .
+    build: ./backend
     ports:
       - "8000:8000"
     environment:
@@ -12,6 +12,14 @@ services:
       OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.2}
       CORS_ORIGINS: ${CORS_ORIGINS:-*}
     volumes:
-      - ./data:/app/data
-      - ./workspace:/app/workspace
+      - ./backend/data:/app/data
+      - ./backend/workspace:/app/workspace
+    restart: unless-stopped
+
+  web:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
     restart: unless-stopped

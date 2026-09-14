@@ -108,6 +108,17 @@ def test_project_and_media_flow():
         r = client.get(f"/api/media/{asset_id}/download", headers=headers)
         assert r.status_code == 200
 
+        # asset + job listing endpoints
+        r = client.get(f"/api/projects/{project_id}/assets", headers=headers)
+        assert r.status_code == 200
+        assert [a["id"] for a in r.json()] == [asset_id]
+
+        r = client.get(f"/api/projects/{project_id}/jobs", headers=headers)
+        assert r.status_code == 200 and isinstance(r.json(), list)
+
+        r = client.get(f"/api/projects/999999/assets", headers=headers)
+        assert r.status_code == 404
+
 
 def test_render_validation_and_preflight_gate():
     with TestClient(app) as client:

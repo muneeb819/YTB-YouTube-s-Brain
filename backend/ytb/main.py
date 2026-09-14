@@ -46,6 +46,11 @@ def health():
     return {"status": "ok", "service": "ytb", "ai_provider": settings.ai_provider}
 
 
+@app.get("/api/health", include_in_schema=False)
+def health_api():
+    return {"status": "ok", "service": "ytb", "ai_provider": settings.ai_provider}
+
+
 app.include_router(auth_router, prefix="/api/auth", tags=["auth"])
 app.include_router(project_router, prefix="/api/projects", tags=["projects"])
 app.include_router(media_router, prefix="/api/media", tags=["media"])

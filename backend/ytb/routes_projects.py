@@ -1,10 +1,12 @@
+import json
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from .auth import current_user
 from .db import get_db
-from .models import MediaAsset, Project
+from .models import Job, MediaAsset, Project
 from .safety import preflight
 
 router = APIRouter()
@@ -31,6 +33,47 @@ def list_projects(user=Depends(current_user), db: Session = Depends(get_db)):
     return [
         {"id": p.id, "name": p.name, "brief": p.brief}
         for p in db.query(Project).filter(Project.owner_id == user.id).all()
+    ]
+
+
+@router.get("/{project_id}/assets")
+def list_assets(project_id: int, user=Depends(current_user), db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == project_id, Project.owner_id == user.id).first()
+    if not project:
+        raise HTTPException(404, "Project not found")
+    assets = db.query(MediaAsset).filter(MediaAsset.project_id == project_id).all()
+    return [
+        {
+            "id": a.id,
+            "filename": a.filename,
+            "mime_type": a.mime_type,
+            "rights_status": a.rights_status,
+            "probe": json.loads(a.probe_json or "{}"),
+        }
+        for a in assets
+    ]
+
+
+@router.get("/{project_id}/jobs")
+def list_jobs(project_id: int, user=Depends(current_user), db: Session = Depends(get_db)):
+    project = db.query(Project).filter(Project.id == project_id, Project.owner_id == user.id).first()
+    if not project:
+        raise HTTPException(404, "Project not found")
+    jobs = (
+        db.query(Job)
+        .filter(Job.project_id == project_id)
+        .order_by(Job.created_at.desc())
+        .all()
+    )
+    return [
+        {
+            "id": j.id,
+            "type": j.type,
+            "state": j.state,
+            "error": j.error,
+            "output": json.loads(j.output_json or "{}"),
+        }
+        for j in jobs
     ]
 
 

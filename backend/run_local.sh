@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+cd "$(dirname "$0")"
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
