@@ -1,0 +1,11 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+data
+workspace
+.env
+.pytest_cache
+*.md
+*.png
